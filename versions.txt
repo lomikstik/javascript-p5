@@ -1,0 +1,13 @@
+v0.1 - first "stable" build
+v0.2 - evolution update
+v0.3 - scale and gui update
+v0.4 - predator update - FAILED, cannot keep balance between predators and prey
+
+v1.0 - official release
+
+???DLC_01 - neural networks, modular organisms, manual species development
+???DLC_02 - dogs of war, large-scale control and civilizations
+
+
+v0.1L - labirynth ripoff
+???

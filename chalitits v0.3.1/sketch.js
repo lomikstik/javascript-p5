@@ -4,9 +4,6 @@ var height = 600;
 var cubes = [];
 var caali = [];
 var foods = [];
-var gridCellSizeBase = 60;
-var foodGrid = [];
-var foodGridEmpty = [];
 var cubeCount = 0;
 var nutrition = 0.2;
 var foodCount = 60;
@@ -18,7 +15,7 @@ var timescale = 1;
 var foodRespawnRate = 0.05;
 var i;
 var j;
-var k, time = 0, foodTimer = 0, menu, worldScalePrev, checkbox, drawStuff = true;
+var k, time = 0, foodTimer = 0, menu, worldScalePrev;
 var selectedCaalis;
 var menuMode = 1;   //menuMode 0 - inspect and control one selected caalis
                     //menuMode 1 - show all caalis's nutrient values/age/stuff
@@ -61,9 +58,6 @@ function setup() {
     sliders[7].position(810,420);
     sliders[7].style('width', '195px');
     sliders[7].style('visibility', 'hidden');
-    
-    checkbox = createCheckbox('sim mode', false);
-    checkbox.changed(myCheckedEvent);
 //    cubes[0] = new Cube();
 //    cubes[0].x = 60 + border;
 //    cubes[0].y = 100 + border;
@@ -98,16 +92,12 @@ function setup() {
     caali[2].g = 150;
     caali[2].b = 255;
     
-//    for (i = 0; i < foodCount; i++){
-//        foods[i] = new Food();
-//        foods[i].j = i;
-//        foods[i].x = random(border + foods[i].size, 800 + border - foods[i].size);
-//        foods[i].y = random(border + foods[i].size, 600 + border - foods[i].size);
-//        foods[i].updateGrid();
-//    }
+    for (i = 0; i < foodCount; i++){
+        foods[i] = new Food();
+        foods[i].x = random(border + foods[i].size, 800 + border - foods[i].size);
+        foods[i].y = random(border + foods[i].size, 600 + border - foods[i].size);
+    }
     menu = new Menu();
-    
-    calculateFoodGrid();
 }
 
 function draw() {
@@ -133,13 +123,8 @@ function draw() {
             var newFood = new Food();
             newFood.x = random(border + newFood.size, 800 + border - newFood.size);
             newFood.y = random(border + newFood.size, 600 + border - newFood.size);
-            newFood.updateGrid();
             foods.push(newFood);
             foodTimer--;
-        }
-        
-        for(var l = 0; l < foods.length; l++) {
-            foods[l].j = l;
         }
 
 
@@ -152,33 +137,16 @@ function draw() {
     }
 
     
-   if(drawStuff) {
-        for (i = 0; i < caali.length; i++) {
-            caali[i].draw();
-        }
-
-        foods.forEach (function (food) {
-            food.draw();
-        });
-       menu.draw();
-   }
-    mutationFactor = sliders[0].value();
-            nutrition = sliders[1].value();
-            timescale = Math.pow(sliders[2].value(), 2);
-            foodCount = sliders[3].value() / worldScale / worldScale;
-            foodRespawnRate = sliders[4].value() / worldScale / worldScale;
-            passiveConsumption = sliders[5].value();
-            activeConsumption = sliders[6].value();
-            worldScale = 1 - sliders[7].value();
-
-    if(worldScale != worldScalePrev) {
-        calculateFoodGrid();
-        for(var q = 0; q < foods.length; q++) {
-            foods[q].updateGrid();
-        }
-    }
    
-    worldScalePrev = worldScale;
+    for (i = 0; i < caali.length; i++) {
+        caali[i].draw();
+    }
+    
+    foods.forEach (function (food) {
+        food.draw();
+    })
+    
+    menu.draw();
 }
 
 function Caalis() {
@@ -197,8 +165,6 @@ function Caalis() {
     this.energy = 50;
     this.fovs = [];
     this.age = 0;
-    this.col = 0;
-    this.row = 0;
     
     this.randomTurnFactor = 0.3;
     this.sprintFactor = 2;
@@ -381,44 +347,16 @@ function Caalis() {
     
     this.update = function () {
         this.age += 1/60;
-        this.col = floor(this.x / (gridCellSizeBase*worldScale));
-        this.row = floor(this.y / (gridCellSizeBase*worldScale));
-        //console.log(foodGrid);
-        for(var q = -1; q <= 1; q++) {
-            for(var w = -1; w <= 1; w++) {
-                if(foodGrid[this.col+q] instanceof Array) {
-                    for(var e = foodGrid[this.col+q][this.row+w].length-1; e >= 0; e--) {
-                        var fd = foodGrid[this.col+q][this.row+w][e];
-                        //console.log(fd);
-                        if (distSq(this.x, this.y, fd.x, fd.y) < (fd.size*0.5*worldScale+ (this.energy + 100)* worldScale/20)*(fd.size*0.5*worldScale+ (this.energy + 100)* worldScale/20)) {
-                            this.energy += fd.size * nutrition;
-                            fd.respawn();  
-                            for(var p = 0; p < foods.length; p++) {
-                                foods[p].j = p;
-                            }
-                            //console.log("SPLICED", coll+q, roww+w, e);
-                            foodGrid[this.col+q][this.row+w].splice(e,1);                                                //Food eating energy gain
-                            if (this.energy > this.splitMass) {                              // Splitting behaviour
-                                this.stateDecay = 60;
-                                this.state = 4;
-                            }
-                        }
-                    }
+        for (j = 0; j < foods.length; j++) {
+            if (distSq(this.x, this.y, foods[j].x, foods[j].y) < (foods[j].size*0.5*worldScale+ (this.energy + 100)* worldScale/20)*(foods[j].size*0.5*worldScale+ (this.energy + 100)* worldScale/20)) {
+                this.energy += foods[j].size * nutrition;
+                foods[j].respawn();                                 //Food eating energy gain
+                if (this.energy > this.splitMass) {                              // Splitting behaviour
+                    this.stateDecay = 60;
+                    this.state = 4;
                 }
             }
         }
-        
-//        
-//        for (j = 0; j < foods.length; j++) {
-//            if (distSq(this.x, this.y, foods[j].x, foods[j].y) < (foods[j].size*0.5*worldScale+ (this.energy + 100)* worldScale/20)*(foods[j].size*0.5*worldScale+ (this.energy + 100)* worldScale/20)) {
-//                this.energy += foods[j].size * nutrition;
-//                foods[j].respawn();                                 //Food eating energy gain
-//                if (this.energy > this.splitMass) {                              // Splitting behaviour
-//                    this.stateDecay = 60;
-//                    this.state = 4;
-//                }
-//            }
-//        }
         
         
         this.energy -= passiveConsumption;
@@ -483,7 +421,6 @@ function Cube() {
 function Food() {
     this.x = 300;
     this.y = 350;
-    this.j = 0;
     this.size = 16 + random(0, 4);
     
     this.draw = function () {
@@ -494,15 +431,7 @@ function Food() {
     this.respawn = function () {
 //        this.x = random(border + this.size, 600 + border - this.size);
 //        this.y = random(border + this.size, 600 + border - this.size);
-        //console.log("FOOD NR ", this.j);
-        foods.splice(this.j, 1);
-    }
-    
-    this.updateGrid = function () {
-        var coll = floor(this.x / (gridCellSizeBase*worldScale));
-        var roww = floor(this.y / (gridCellSizeBase*worldScale));
-        //console.log(coll, roww, foodGrid);
-        foodGrid[coll][roww].push(this);
+        foods.splice(j, 1);
     }
 }
 
@@ -562,37 +491,15 @@ function FOV(owner) {
                 this.owner.y + Math.sin(radians(this.owner.rot - this.width / 2 + this.centerAngle)) * this.range * worldScale);
     }
     
-//    this.see = function () {
-//        this.foodCount = 0;
-//        for (var kaqs = 0; kaqs < foods.length; kaqs++) {
-//            if (distSq(this.owner.x, this.owner.y, foods[kaqs].x, foods[kaqs].y) <= this.range*this.range * worldScale*worldScale) {
-//                var distVec = createVector(foods[kaqs].x - this.owner.x, foods[kaqs].y - this.owner.y);
-//                if (angle_between(degrees(distVec.heading()),
-//                                  this.owner.rot + this.centerAngle - this.width / 2,
-//                                 this.owner.rot + this.centerAngle + this.width / 2)) {
-//                    this.foodCount += foods[kaqs].size;
-//                }
-//            }
-//        }
-//    }
-    
     this.see = function () {
         this.foodCount = 0;
-        for(var q = -1; q <= 1; q++) {
-            for(var w = -1; w <= 1; w++) {
-                if(foodGrid[this.owner.col+q] instanceof Array && foodGrid[this.owner.col+q][this.owner.row+w] instanceof Array) {
-                    for(var e = foodGrid[this.owner.col+q][this.owner.row+w].length-1; e >= 0; e--) {
-                        var fd = foodGrid[this.owner.col+q][this.owner.row+w][e];
-                        //console.log(fd);
-                        if (distSq(this.owner.x, this.owner.y, fd.x, fd.y) <= this.range*this.range * worldScale*worldScale) {
-                            var distVec = createVector(fd.x - this.owner.x, fd.y - this.owner.y);
-                            if (angle_between(degrees(distVec.heading()),
-                                this.owner.rot + this.centerAngle - this.width / 2,
-                                this.owner.rot + this.centerAngle + this.width / 2)) {
-                                this.foodCount += fd.size;
-                            }
-                        }
-                    }
+        for (var kaqs = 0; kaqs < foods.length; kaqs++) {
+            if (distSq(this.owner.x, this.owner.y, foods[kaqs].x, foods[kaqs].y) <= this.range*this.range * worldScale*worldScale) {
+                var distVec = createVector(foods[kaqs].x - this.owner.x, foods[kaqs].y - this.owner.y);
+                if (angle_between(degrees(distVec.heading()),
+                                  this.owner.rot + this.centerAngle - this.width / 2,
+                                 this.owner.rot + this.centerAngle + this.width / 2)) {
+                    this.foodCount += foods[kaqs].size;
                 }
             }
         }
@@ -629,28 +536,6 @@ function mousePressed () {
         menu.clicked();
     }
 }
-
-function calculateFoodGrid() {
-    var cellSize = gridCellSizeBase * worldScale;
-    var cols = floor(800 / cellSize)+1;
-    var rows = floor(600 / cellSize)+1;
-    foodGrid = [];
-    for(var m = -1; m <= cols; m++) {
-        foodGrid[m] = [];
-        for(var n = -1; n <= rows; n++) {
-            foodGrid[m][n] = [];
-        }
-    }
-}
-
-function myCheckedEvent() {
-  if (this.checked()) {
-    drawStuff = false;
-  } else {
-    drawStuff = true;
-  }
-}
-
 
 function distSq(x1, y1, x2, y2) {
     return (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2);

@@ -15,7 +15,7 @@ function Menu () {
     }
     
     this.draw = function () {
-        if(menuMode == 0 && drawStuff) {
+        if(menuMode == 0) {
             fill(255,0);
             stroke(255);
             strokeWeight(3);
@@ -32,7 +32,7 @@ function Menu () {
             text("Speed: ", 820, 120);
             text(selectedCaalis.speed.toFixed(2) + " / " + (selectedCaalis.speed * selectedCaalis.sprintFactor).toFixed(2), 900, 120);
         }
-        else if (menuMode == 1 && drawStuff) {
+        else if (menuMode == 1) {
             for (i = 0; i < caali.length; i++) {
                 fill(caali[i].r, caali[i].g, caali[i].b);
                 textSize(12);
@@ -44,9 +44,6 @@ function Menu () {
                 }
                 else if (i < 81) {
                     text (i + ":  " + Math.round(caali[i].energy*10)/10, 940,60 + (i%27) * 20);
-                }
-                else{
-                    break;
                 }
             }
         }
@@ -60,35 +57,33 @@ function Menu () {
             activeConsumption = sliders[6].value();
             worldScale = 1 - sliders[7].value();
 
-            if(drawStuff) {
-                textSize(14);
-                noStroke();
-                fill(255);
-
-                text("Mutation factor: ", 820, 67);
-                text(mutationFactor.toFixed(1), 970, 67);
-                text("Nutrition factor: ", 820, 117);
-                text(nutrition.toFixed(2), 970, 117);
-                text("Timescale: ", 820, 167);
-                text(timescale.toFixed(2), 970, 167);
-                text("Max food count: ", 820, 227);
-                text(foodCount, 970, 227);
-                text("Food respawn rate: ", 820, 277);
-                text(foodRespawnRate.toFixed(2), 970, 277);
-                text("Passive consumption: ", 820, 327);
-                text(passiveConsumption.toFixed(4), 970, 327);
-                text("Active consumption: ", 820, 377);
-                text(activeConsumption.toFixed(3), 970, 377);
-                text("World scale: ", 820, 427);
-                text(1/worldScale, 970, 427);
-            }
+            
+            textSize(14);
+            noStroke();
+            fill(255);
+            
+            text("Mutation factor: ", 820, 67);
+            text(mutationFactor.toFixed(1), 970, 67);
+            text("Nutrition factor: ", 820, 117);
+            text(nutrition.toFixed(2), 970, 117);
+            text("Timescale: ", 820, 167);
+            text(timescale.toFixed(2), 970, 167);
+            text("Max food count: ", 820, 227);
+            text(foodCount, 970, 227);
+            text("Food respawn rate: ", 820, 277);
+            text(foodRespawnRate.toFixed(2), 970, 277);
+            text("Passive consumption: ", 820, 327);
+            text(passiveConsumption.toFixed(4), 970, 327);
+            text("Active consumption: ", 820, 377);
+            text(activeConsumption.toFixed(3), 970, 377);
+            text("World scale: ", 820, 427);
+            text(1/worldScale, 970, 427);
         }
-        if(drawStuff) {
-                for (i = 0; i < caali.length; i++) {
-                    fill(0);
-                    textSize(8);
-                    text (i, caali[i].x-5, caali[i].y+3);
-        }
+        
+        for (i = 0; i < caali.length; i++) {
+            fill(0);
+            textSize(8);
+            text (i, caali[i].x-5, caali[i].y+3);
         }
         fill(100);
         if (menuMode == 0 || menuMode == 1) {
@@ -107,5 +102,6 @@ function Menu () {
         textSize(20);
         text("Caali", 820, 35);
         text("World", 910, 35);
+        
     }
 }

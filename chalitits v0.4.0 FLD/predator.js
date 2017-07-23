@@ -200,8 +200,10 @@ function Predator() {
         for (j = 0; j < caali.length; j++) {
             if (dist(this.x, this.y, caali[j].x, caali[j].y) < (caali[j].energy + 100) * worldScale / 20 + (this.energy + 100) * worldScale/20
                && !caali[j].isPredator) {
-                this.energy += caali[j].energy * 0.45;
-                caali.splice(j,1);
+                //this.energy += caali[j].energy * 0.45;
+                //caali.splice(j,1);
+				caali[j].energy -= 1;
+				this.energy += 0.6;
                 if(j != 0) {
                     j--;
                 }

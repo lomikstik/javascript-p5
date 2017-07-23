@@ -60,6 +60,9 @@ function draw() {
     // 10% chance of new food
     if (random(1) < 0.05) {
       food.push(createVector(random(width), random(height)));
+	  if(food.length > 50) {
+		  food.splice(0,1);
+	  }
     }
 
     // 1% chance of new poison

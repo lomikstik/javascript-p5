@@ -8,6 +8,10 @@
 // This version of nn.js adds some functionality for evolution
 // copy() and mutate()
 
+// To get multiple hidden layers input an array of hidden layer
+// neuron counts instead of one number.
+// [12,12,12] makes 3 hidden layers, each with 12 perceptrons.
+
 // Sigmoid function
 // This is used for activation
 // https://en.wikipedia.org/wiki/Sigmoid_function
